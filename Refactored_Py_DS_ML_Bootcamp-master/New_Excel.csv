@@ -1,0 +1,29 @@
+,Experience,Application,Acronyms,Brief Description
+0,Order Enablement,OFS,Order Fulfillment Services,"Controls fulfillment channel routing, facility assignment, order validation, prioritization, etc."
+1,Product Services, PDSL ,Product Data Service Layer -, Webservices interface for Dell Product Data
+2,Trade ,GTM,Global Trade Management,Part/Partner screening 
+3,Logistics,GRE,Global Route Engine,Engine that provides route plan to start fulfillment process 
+4,Order Enablement,FSL,Fulfillment Service Layer,Ggroups and manages services used by Business Process Execution Layer (BPEL)
+5,Inventory,Glovia,Dell Inhouse Application,"A configuration management and procurement production system used by internal Dell groups to provide materials-related information to Dell factories and supply chains. Supports Config management, procurement, inventory, cost accounting, and accounts payable. This is now Being replaced by PRISM as UIP program"
+6,Manufacturing,OPP,Order Pre Processor,OPP validates the parts of an order and generates a GCF (Global Configuration File). Provides order validation or Dell Factory and Dell ODM orders.
+7,Config Services,GPT,Global Process Tools,"GPT is a web site and database which tracks customized configuration projects from the customer's initial phone call, through project development, to manufacturing instructions for production on the factory floor."
+8,Config Services,MIAS,Manufacturing Integrated Asset Services,Supports Customized Asset services   
+9,Config Services,FMT,File Management Tool ,moves files from development to production and maintains CFI content outside of the factory.
+10,Order Enablement,FOOE,Fulfillment Order Orchestration Engine ,FOOE is a solution for enabling enable Third Party Logistics providers for fulfillment processes within the DAO Region that comprises of 5 components. 1) FOOE Workflow (BPEL) 2.)FOOE Business Activity Monitor (BAM) 3.)FOOE Web (Web Application User Interface) 4.)FOOE  Fulfillment Services 5.)FOOE Data Services
+11,Order Enablement,BOSS,BPEL ODM SOA System,"BPEL = Business Process Execution Language, ODM = Original Design Manufacturer, SOA = Service Oriented Architecture"
+12,Vendor Interface,ODM,Original Design Manufacturer,"FOXCONN, COMPEL like 3rd party vendors who provide manufacturing services"
+13,Inventory,PRISM,,"Glovia replacement - Supports Config management, procurement, inventory, cost accounting, and accounts payable."
+14,Order Enablement,Stable,In house application,System that tracks Event sequence 
+15,Trade ,TC,Trade Compliance ,To determine risk level of shipment diversion
+16,Logistics,OTM,Oracle Transportation Management ,Transportation tool that gives optimized carrier to plan shipment 
+17,Logistics,OIL,Oracle Interface Language,Interface application for OTM
+18,Logistics,GOLF,Global Outbound and Logistics Fulfillment,System to Track 3PL message sequence 
+19,Vendor Interface,3PL,3rd Party Logisitcs Provider,Vendor who provides Logisitics Services (ships Pickable Parts)
+20,Logistics,LGS,,
+21,Logistics,Dragon,Dell Realtime Application for Global Order Network,Logisitics Application that tracks Message sequence for APJ 
+22,Order Enablement,FDL,Factory Data Layer,database that  maintains Factory Transactions
+23,Order Enablement,UDM,Unified Data Model,database that Persists Supply chain master /Transactional Data 
+24,Manufacturing,AX ,Dymanics AX/D365 - a Microsoft ERP tool,"AX is designed to extend and enhance the functionalities of Dell's Supply Chain and Warehouse Management to the factory floor, enabling you to quickly and efficiently capture real-time inventory transactions"
+25,Product Services,PIM,Product Information Management ,
+26,Plan,SCDH,Supply Chain Data Hub ,"Supply Chain Data Hub that maintains all Ship TO , Ship From configurations "
+27,Plan,eReq,Electronic Requisition ,"A tool used to place & route purchase order for approval, this is Being replaced by PRISM Procure"

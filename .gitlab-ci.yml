@@ -1,0 +1,163 @@
+include:
+- project: devops/job-templates
+  ref: v2.0.0
+  file: deploy-jobs.yml
+
+
+stages:
+  - build
+  - deploy
+  - testjob
+
+variables:
+  CF_ARGS: $APP_NAME -f $PCF_MF_FILE -p $TARGET --no-start
+  #APP_NAME: COPSnsrSmokeAPI
+  VAULT_NAMESPACE: kv
+  VAULT_PCF_SPACE: pnp1
+  space: E2EFulfillment
+  org: E2E_FSL_Org
+  username: kishor_kumar_m_v
+  password: $PNP1_DEPLOY
+  api: api.spnp1.pcf.dell.com
+  PRE_DEPLOY_CMD: echo "==> Deployment started ..."
+  POST_DEPLOY_SCRIPT: echo "==> Deployed!"
+  SCRIPT_URL: https://artifacts.dell.com/artifactory/cicd-1003184-generic-prd-local/traditional/td-dev
+  WEBCONFIGTRANSFORMER: https://artifacts.dell.com/artifactory/cicd-1003184-generic-prd-local/traditional/td-dev/WebConfigTransformer.zip
+  VAULT_INDEX: https://artifacts.dell.com/artifactory/api/pypi/devops-shared-python/simple
+  VAULT_CLI_SH: https://gitlab.dell.com/api/v4/projects/189942/repository/files/vaultcli%2Fvaultcli.sh/raw?ref=latest
+  VAULT_CLI_PS: https://gitlab.dell.com/api/v4/projects/189942/repository/files/vaultcli%2Fvaultcli.ps1/raw?ref=latest
+  VAULT_CLI_PKS: https://gitlab.dell.com/api/v4/projects/189942/repository/files/vaultcli%2Fvaultpks.ps1/raw?ref=latest
+  VAULT_CLI_PK_SH: https://gitlab.dell.com/api/v4/projects/189942/repository/files/vaultcli%2Fvaultpks.sh/raw?ref=latest
+  PRE_CHECK_PS: https://gitlab.dell.com/api/v4/projects/189942/repository/files/precheck_vpod%2Fprecheck_matrix.ps1/raw?ref=latest
+  PRE_CHECK_VPOD_PS: https://gitlab.dell.com/api/v4/projects/189942/repository/files/precheck_vpod%2Fprecheck_vpod.ps1/raw?ref=latest
+  PRE_CHECK_PCF: https://gitlab.dell.com/api/v4/projects/189942/repository/files/precheck_pcf%2Fprecheck.sh/raw?ref=latest
+  PRE_CHECK_PKS: https://gitlab.dell.com/api/v4/projects/189942/repository/files/precheck-pks%2Fprecheck.sh/raw?ref=latest
+  PRE_CHECK_AKS: https://gitlab.dell.com/api/v4/projects/189942/repository/files/precheck-pks%2Fprecheck_aks.sh/raw?ref=latest
+  APPPOOL_IdleTimeout: '00:30:00'
+  DCSARTIFACTORY: artifacts.dell.com/artifactory
+  VAULT_ADDR: https://hcvault-nonprod.dell.com
+  PROD_VAULT_ADDR: https://vault.dell.com
+
+build_Terminator:
+  stage: build
+  image: harbor.dell.com/devops-images/deb-dotnet-devops/8-sdk:latest
+  script:
+    - cd Terminator/
+    - echo "Building the CSharp application"
+    - dotnet restore Terminator.csproj
+    - dotnet build Terminator.csproj
+    - dotnet publish -c Release -o publish/ Terminator.csproj
+    - |
+      MANIFEST_FILE="manifest.yml"
+      PUBLISH_FOLDER="publish"
+      if [ ! -d "$PUBLISH_FOLDER" ]; then
+          echo "Publish folder doesn't exist. Exiting."
+          exit 1
+      fi
+      cp "$MANIFEST_FILE" "$PUBLISH_FOLDER/"
+      echo "Manifest file copied to the publish folder successfully."
+    
+  artifacts:
+    paths:
+      - ./Terminator/publish/
+    expire_in: 2 days
+  tags:
+    - linux
+  only:
+    - main
+
+deploy-pcf-np-console_Terminator:
+  stage: deploy
+  extends: .deploy-pcf-np-console
+  image: harbor.dell.com/devops-images/deb-cf-cli-plugins-devops/8:latest
+  before_script:
+  - echo "$VAULT_ADDR;$VAULT_NAMESPACE;$VAULT_JWT_PATH;$VAULT_JWT_ROLE;$VAULT_PCF_SPACE"
+  - echo "$api;$username;$password;$org;$space"
+  script:
+  - cd ./Terminator/publish/
+  - cf login -a $api -u $username -p $PNP1_DEPLOY -o $org -s $space
+  - cf push Terminator
+  - cf logout
+  dependencies:
+    - build_Terminator
+  #variables: {}
+  only:
+    - main
+
+test_job_Terminator:
+  stage: testjob
+  script:
+    - echo 'calling API'
+    - sleep 10
+    - curl -X GET 'https://terminator.pnp1.pcf.dell.com/swagger/index.html'
+    #- exit 1
+  tags:
+    - linux 
+  dependencies:
+    - deploy-pcf-np-console_Terminator
+  only:
+    - main
+
+build_E2ECoreWeb:
+  stage: build
+  image: harbor.dell.com/devops-images/deb-dotnet-devops/8-sdk:latest
+  script:
+    - cd E2ECoreWeb/
+    - echo "Building the CSharp application"
+    - dotnet restore E2ECoreWeb.csproj
+    - dotnet build E2ECoreWeb.csproj
+    - dotnet publish -c Release -o publish/ E2ECoreWeb.csproj
+    - |
+      MANIFEST_FILE="manifest.yml"
+      PUBLISH_FOLDER="publish"
+      if [ ! -d "$PUBLISH_FOLDER" ]; then
+          echo "Publish folder doesn't exist. Exiting."
+          exit 1
+      fi
+      cp "$MANIFEST_FILE" "$PUBLISH_FOLDER/"
+      echo "Manifest file copied to the publish folder successfully."
+    
+  artifacts:
+    paths:
+      - ./E2ECoreWeb/publish/
+    expire_in: 2 days
+  tags:
+    - linux    
+  only:
+    - main
+
+deploy-pcf-np-console_E2ECoreWeb:
+  stage: deploy
+  extends: .deploy-pcf-np-console
+  image: harbor.dell.com/devops-images/deb-cf-cli-plugins-devops/8:latest
+  before_script:
+  - echo "$VAULT_ADDR;$VAULT_NAMESPACE;$VAULT_JWT_PATH;$VAULT_JWT_ROLE;$VAULT_PCF_SPACE"
+  - echo "$api;$username;$password;$org;$space"
+  script:
+  - cd ./E2ECoreWeb/publish/
+  - cf login -a $api -u $username -p $PNP1_DEPLOY -o $org -s $space
+  - cf push E2ECoreWeb
+  - cf logout
+  dependencies:
+    - build_E2ECoreWeb
+  #variables: {}
+  only:
+    - main
+
+test_job_E2ECoreWeb:
+  stage: testjob
+  script:
+    - echo 'calling API'
+    - sleep 10
+    - curl -X GET 'https://e2ecoreweb.pnp1.pcf.dell.com/Home/Index'
+    #- exit 1
+  tags:
+    - linux 
+  dependencies:
+    - deploy-pcf-np-console_E2ECoreWeb
+  only:
+    - main
+
+
+
+
